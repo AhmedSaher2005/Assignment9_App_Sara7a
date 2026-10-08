@@ -1,0 +1,39 @@
+import express from "express";
+import connectionDB from "./DB/connectionDB.js";
+import userRouter from "./modules/users/user.controller.js";
+import cors from "cors";
+const app = express();
+const port = 3000;
+
+const bootstrap = async () => {
+  app.use(
+    cors({
+      origin: "*",
+    }),
+  );
+  app.use(express.json());
+
+  await connectionDB();
+
+  app.get("/", (req, res) =>
+    res.status(200).json({ message: "welcome on sara7a app...😘" }),
+  );
+  app.use("/users", userRouter);
+
+  app.use("{/*demo}", (req, res, next) => {
+    throw new Error(
+      `url:${req.originalUrl} with method:${req.method} not found`,
+    );
+  });
+
+  app.use((err, req, res, next) => {
+    //console.error(err);
+    res
+      .status(err.cause || 500)
+      .json({ message: err.message, stack: err.stack });
+  });
+
+  app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+};
+
+export default bootstrap;
